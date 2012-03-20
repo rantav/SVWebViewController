@@ -8,7 +8,7 @@
 
 #import "SVWebViewController.h"
 
-@interface SVWebViewController () <UIWebViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
+@interface SVWebViewController () <UIWebViewDelegate, UIActionSheetDelegate>
 
 @property (nonatomic, strong, readonly) UIBarButtonItem *backBarButtonItem;
 @property (nonatomic, strong, readonly) UIBarButtonItem *forwardBarButtonItem;
@@ -103,10 +103,7 @@
         
         if((self.availableActions & SVWebViewControllerAvailableActionsOpenInSafari) == SVWebViewControllerAvailableActionsOpenInSafari)
             [pageActionSheet addButtonWithTitle:NSLocalizedString(@"Open in Safari", @"")];
-        
-        if([MFMailComposeViewController canSendMail] && (self.availableActions & SVWebViewControllerAvailableActionsMailLink) == SVWebViewControllerAvailableActionsMailLink)
-            [pageActionSheet addButtonWithTitle:NSLocalizedString(@"Mail Link to this Page", @"")];
-        
+                
         [pageActionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"")];
         pageActionSheet.cancelButtonIndex = [self.pageActionSheet numberOfButtons]-1;
     }
@@ -338,30 +335,8 @@
         UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
         pasteboard.string = self.mainWebView.request.URL.absoluteString;
     }
-    
-    else if([title isEqualToString:NSLocalizedString(@"Mail Link to this Page", @"")]) {
-        
-		MFMailComposeViewController *mailViewController = [[MFMailComposeViewController alloc] init];
-        
-		mailViewController.mailComposeDelegate = self;
-        [mailViewController setSubject:[self.mainWebView stringByEvaluatingJavaScriptFromString:@"document.title"]];
-  		[mailViewController setMessageBody:self.mainWebView.request.URL.absoluteString isHTML:NO];
-		mailViewController.modalPresentationStyle = UIModalPresentationFormSheet;
-        
-		[self presentModalViewController:mailViewController animated:YES];
-	}
-    
     pageActionSheet = nil;
 }
 
 #pragma mark -
-#pragma mark MFMailComposeViewControllerDelegate
-
-- (void)mailComposeController:(MFMailComposeViewController *)controller 
-          didFinishWithResult:(MFMailComposeResult)result 
-                        error:(NSError *)error 
-{
-	[self dismissModalViewControllerAnimated:YES];
-}
-
 @end
